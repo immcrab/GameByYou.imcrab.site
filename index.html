@@ -26,6 +26,18 @@
             overflow-x: hidden;
         }
 
+        /* Background Blur when side panel is open */
+        .blur-target {
+            transition: filter 0.3s ease, transform 0.3s ease;
+        }
+
+        body.modal-open .blur-target {
+            filter: blur(12px);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* --- NAVIGATION --- */
         nav {
             display: flex;
             justify-content: space-between;
@@ -40,174 +52,244 @@
         }
 
         .logo { font-weight: 800; letter-spacing: 2px; color: var(--accent); text-decoration: none; }
-        .nav-links a { color: var(--text-dim); text-decoration: none; margin-left: 20px; transition: 0.3s; }
+        .nav-links { display: flex; align-items: center; }
+        .nav-links a { color: var(--text-dim); text-decoration: none; margin-left: 20px; transition: 0.3s; cursor: pointer; position: relative; }
         .nav-links a:hover { color: white; }
 
-        /* --- ANIMATIONS --- */
-        
-        /* Letter Wave Animation */
-        .wave-text span {
-            display: inline-block;
-            animation: waveAnim 1s ease-in-out forwards;
-            opacity: 0;
-            transform: translateY(20px);
+        /* --- WIGGLE ANIMATION --- */
+        @keyframes wiggle {
+            0%, 90% { transform: rotate(0); }
+            92% { transform: rotate(10deg); }
+            94% { transform: rotate(-10deg); }
+            96% { transform: rotate(10deg); }
+            98% { transform: rotate(-10deg); }
+            100% { transform: rotate(0); }
         }
 
-        @keyframes waveAnim {
-            0% { opacity: 0; transform: translateY(20px); }
-            50% { opacity: 1; transform: translateY(-10px); }
-            100% { opacity: 1; transform: translateY(0); }
+        .wiggle {
+            animation: wiggle 2s infinite;
+            color: var(--accent) !important;
         }
 
-        /* Generic Fade Up for sections */
-        .reveal {
-            animation: fadeUp 1s ease-out forwards;
+        .new-dot {
+            position: absolute;
+            top: -5px;
+            right: -8px;
+            width: 8px;
+            height: 8px;
+            background: #ff4444;
+            border-radius: 50%;
+            display: none;
         }
 
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Hero */
-        .hero {
-            height: 70vh;
+        /* --- SIDE PANEL --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
+            justify-content: flex-end;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s ease;
         }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .devlog-popup {
+            background: #252525;
+            width: 100%;
+            max-width: 450px;
+            height: 100vh;
+            padding: 40px 30px;
+            position: relative;
+            border-left: 1px solid var(--accent);
+            box-shadow: -10px 0 50px rgba(0,0,0,0.5);
+            overflow-y: auto;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-overlay.active .devlog-popup {
+            transform: translateX(0);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+
+        .devlog-entry {
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 20px 0;
+        }
+
+        .devlog-entry h4 { margin: 5px 0; color: var(--accent); font-size: 1.2rem; }
+        .devlog-entry span { font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+        .devlog-entry p { font-size: 0.95rem; margin-top: 10px; color: #ccc; }
+
+        /* --- HERO & CONTENT --- */
+        .wave-text span { display: inline-block; animation: waveAnim 1s ease-in-out forwards; opacity: 0; transform: translateY(20px); }
+        @keyframes waveAnim { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
         
+        .reveal { animation: fadeUp 1s ease-out forwards; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        .hero { height: 70vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
         h1 { font-size: clamp(2.5rem, 8vw, 4rem); margin-bottom: 10px; }
         .highlight { color: var(--accent); }
 
-        /* Download Card */
         .download-section { padding: 80px 10%; background: #121212; display: flex; flex-direction: column; align-items: center; }
-        .download-card {
-            background: var(--card-bg);
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            max-width: 500px;
-            width: 100%;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .download-btn {
-            display: block;
-            background: white;
-            color: black;
-            text-decoration: none;
-            padding: 15px;
-            border-radius: 8px;
-            font-weight: 800;
-            margin: 20px 0;
-            transition: 0.3s;
-        }
+        .download-card { background: var(--card-bg); padding: 40px; border-radius: 20px; text-align: center; max-width: 500px; width: 100%; border: 1px solid rgba(255,255,255,0.1); }
+        .download-btn { display: block; background: white; color: black; text-decoration: none; padding: 15px; border-radius: 8px; font-weight: 800; margin: 20px 0; transition: 0.3s; }
         .download-btn:hover { background: var(--accent); color: white; transform: scale(1.05); }
 
-        /* Guide Section */
         .guide-section { padding: 80px 10%; max-width: 900px; margin: 0 auto; }
         .guide-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 40px; }
-        .step-card {
-            background: var(--step-bg);
-            padding: 30px;
-            border-radius: 12px;
-            position: relative;
-            border-left: 4px solid var(--accent);
-            transition: 0.3s;
-        }
+        .step-card { background: var(--step-bg); padding: 30px; border-radius: 12px; position: relative; border-left: 4px solid var(--accent); transition: 0.3s; }
         .step-card:hover { transform: translateY(-5px); border-left-width: 8px; }
-
-        .step-num {
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 3rem;
-            font-weight: 800;
-            opacity: 0.1;
-        }
-        h3 { margin-top: 0; color: white; }
+        .step-num { position: absolute; top: 10px; right: 20px; font-size: 3rem; font-weight: 800; opacity: 0.1; }
 
         footer { text-align: center; padding: 40px; color: var(--text-dim); font-size: 0.8rem; border-top: 1px solid rgba(255,255,255,0.05); }
     </style>
 </head>
 <body>
 
-    <nav>
-        <a href="#" class="logo">GAME BY YOU</a>
-        <div class="nav-links">
-            <a href="#download">Download</a>
-            <a href="#how-to">How to Install</a>
-            <a href="idea.html">Submit Idea</a>
+    <div class="modal-overlay" id="devlogModal">
+        <div class="devlog-popup">
+            <button class="close-btn" onclick="toggleDevlog()">&times;</button>
+            <h2 style="margin-top:0; font-size: 2.5rem;">Devlog</h2>
+            <div id="devlog-container">
+                </div>
         </div>
-    </nav>
+    </div>
 
-    <header class="hero">
-        <h1 id="animated-title" class="wave-text">Built by <span class="highlight">Shorts</span>.</h1>
-        <p class="reveal" style="animation-delay: 1.2s;">Vr By You..</p>
-    </header>
-
-    <section id="download" class="download-section reveal" style="animation-delay: 1.5s;">
-        <div class="download-card">
-            <span style="color:var(--accent); font-weight:bold; font-size:0.8rem; letter-spacing:1px;">LATEST RELEASE</span>
-            <h2>Get the APK</h2>
-            <a href="downloads/1.3/GameByYou.apk" download class="download-btn">Download GameByYou.apk</a>
-            <p style="font-size: 0.8rem; color: var(--text-dim);">File Size: ~43MB | Platform: Android/Quest</p>
-        </div>
-    </section>
-
-    <section id="how-to" class="guide-section reveal" style="animation-delay: 1.8s;">
-        <h2 style="text-align: center; font-size: 2.5rem;">How to Install</h2>
-        <p style="text-align: center; color: var(--text-dim);">Since this is not an official game, you'll need to install it manually.</p>
-        
-        <div class="guide-grid">
-            <div class="step-card">
-                <div class="step-num">01</div>
-                <h3>Download File Manager</h3>
-                <p>Download <b>AnExplorer VR</b> or <b>Mobile VR Station</b> from the Meta Quest store.</p>
+    <div class="blur-target">
+        <nav>
+            <a href="#" class="logo">GAME BY YOU</a>
+            <div class="nav-links">
+                <a onclick="toggleDevlog()" id="devlogLink">
+                    Devlog
+                    <div class="new-dot" id="newDot"></div>
+                </a>
+                <a href="#download">Download</a>
+                <a href="#how-to">How to Install</a>
+                <a href="idea.html">Submit Idea</a>
             </div>
-            
-            <div class="step-card">
-                <div class="step-num">02</div>
-                <h3>Itch.io</h3>
-                <p>Go to <a href="https://imcrab.itch.io/gamebyyou" target="_blank" style="color:var(--accent);">itch.io</a> and download the latest version.</p>
-            </div>
-            
-            <div class="step-card">
-                <div class="step-num">03</div>
-                <h3>Install APK</h3>
-                <p>In your file manager, find <b>GameByYou.apk</b> in downloads and follow the prompts.</p>
-            </div>
+        </nav>
 
-            <div class="step-card">
-                <div class="step-num">04</div>
-                <h3>Find Game</h3>
-                <p>In App Library, change the category filter to <b>"Unknown Sources"</b> to play.</p>
-            </div>
-        </div>
-    </section>
+        <header class="hero">
+            <h1 id="animated-title" class="wave-text">Built by <span class="highlight">Shorts</span>.</h1>
+            <p class="reveal" style="animation-delay: 1.2s;">Vr By You..</p>
+        </header>
 
-    <footer>
-        <p>Game By You, Made By You.</p>
-    </footer>
+        <section id="download" class="download-section reveal" style="animation-delay: 1.5s;">
+            <div class="download-card">
+                <span style="color:var(--accent); font-weight:bold; font-size:0.8rem; letter-spacing:1px;">LATEST RELEASE</span>
+                <h2>Get the APK</h2>
+                <a href="#" class="download-btn">Download GameByYou.apk</a>
+            </div>
+        </section>
+
+        <section id="how-to" class="guide-section reveal" style="animation-delay: 1.8s;">
+            <h2 style="text-align: center; font-size: 2.5rem;">How to Install</h2>
+            <div class="guide-grid">
+                <div class="step-card"><div class="step-num">01</div><h3>File Manager</h3><p>Download a file manager on your Quest.</p></div>
+                <div class="step-card"><div class="step-num">02</div><h3>Download</h3><p>Get the APK from this site.</p></div>
+                <div class="step-card"><div class="step-num">03</div><h3>Install</h3><p>Open the APK in the file manager to install.</p></div>
+                <div class="step-card"><div class="step-num">04</div><h3>Play</h3><p>Find it in 'Unknown Sources' in your library.</p></div>
+            </div>
+        </section>
+
+        <footer><p>Game By You, Made By You.</p></footer>
+    </div>
 
     <script>
-        // This script splits the title into individual spans for the wave effect
-        const title = document.getElementById('animated-title');
-        const text = title.textContent;
-        title.innerHTML = '';
+        /* --- 1. YOUR DEVLOG DATA (ADD NEW STUFF HERE) --- */
+        const devlogData = [
+            {
+                "id": 2,
+                "date": "January 21, 2026",
+                "title": "Visual Improvements",
+                "content": "Added Bloom, Vignette, and Post-Processing effects to enhance the visual quality of the game, and feel more real."
+            },
+            {
+                "id": 1,
+                "date": "January 21, 2026",
+                "title": "The Side Panel Update",
+                "content": "Added a new side panel that wiggles when there is fresh news! This update improves the overall look of the devlog."
+            },
+            
+        ];
 
-        [...text].forEach((char, i) => {
+        /* --- 2. WAVE TEXT ANIMATION --- */
+        const title = document.getElementById('animated-title');
+        const textContent = title.textContent;
+        title.innerHTML = '';
+        [...textContent].forEach((char, i) => {
             const span = document.createElement('span');
-            // preserve spaces
             span.innerHTML = char === ' ' ? '&nbsp;' : char;
-            // stagger the animation delay for each letter
             span.style.animationDelay = `${i * 0.05}s`;
             title.appendChild(span);
         });
-    </script>
 
+        /* --- 3. DEVLOG LOGIC --- */
+        const container = document.getElementById('devlog-container');
+        const link = document.getElementById('devlogLink');
+        const dot = document.getElementById('newDot');
+
+        function initDevlog() {
+            // Fill the side panel with your data
+            container.innerHTML = devlogData.map(entry => `
+                <div class="devlog-entry">
+                    <span>${entry.date}</span>
+                    <h4>${entry.title}</h4>
+                    <p>${entry.content}</p>
+                </div>
+            `).join('');
+
+            // Wiggle Logic: Check if user has seen this ID
+            const latestId = devlogData[0].id;
+            const lastSeen = localStorage.getItem('lastReadDevlog') || 0;
+
+            if (latestId > lastSeen) {
+                link.classList.add('wiggle');
+                dot.style.display = 'block';
+            }
+        }
+
+        function toggleDevlog() {
+            const modal = document.getElementById('devlogModal');
+            const body = document.body;
+
+            modal.classList.toggle('active');
+            body.classList.toggle('modal-open');
+
+            if (modal.classList.contains('active')) {
+                // Stop wiggling once they open it
+                link.classList.remove('wiggle');
+                dot.style.display = 'none';
+                localStorage.setItem('lastReadDevlog', devlogData[0].id);
+            }
+        }
+
+        // Close on background click
+        document.getElementById('devlogModal').onclick = (e) => {
+            if (e.target.id === 'devlogModal') toggleDevlog();
+        };
+
+        // Start
+        initDevlog();
+    </script>
 </body>
 </html>
